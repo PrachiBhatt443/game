@@ -1,23 +1,77 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
 
 function App() {
+  const initialMatrix = [
+    ['white', 'white', 'white'],
+    ['white', 'white', 'white'],
+    ['white', 'white', 'white'],
+  ];
+  const [matrix, setMatrix] = useState(initialMatrix);
+  const [clickOrder, setClickOrder] = useState([]);
+
+  const handleClick = (row, col) => {
+    const newMatrix = matrix.map((r, rowIndex) =>
+      r.map((c, colIndex) => {
+        if (rowIndex === row && colIndex === col) {
+          return 'green';
+        }
+        return c;
+      })
+    );
+
+    setMatrix(newMatrix);
+    setClickOrder([...clickOrder, { row, col }]);
+
+    if (row === 2 && col === 2) {
+      changeToOrangeInSequence([...clickOrder, { row, col }]);
+    }
+  };
+
+  const changeToOrangeInSequence = (order) => {
+    order.forEach(({ row, col }, index) => {
+      setTimeout(() => {
+        setMatrix((prevMatrix) =>
+          prevMatrix.map((r, rowIndex) =>
+            r.map((c, colIndex) => {
+              if (rowIndex === row && colIndex === col) {
+                return 'orange';
+              }
+              return c;
+            })
+          )
+        );
+      }, index * 500);
+    });
+  };
+
+  const handleRefresh = () => {
+    setMatrix(initialMatrix);
+    setClickOrder([]);
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className='Matrix'>
+        {matrix.map((row, rowIndex) => (
+          <div key={rowIndex} className="outerbox">
+            {row.map((col, colIndex) => (
+              <div
+                key={colIndex}
+                className="innerbox"
+                style={{ backgroundColor: matrix[rowIndex][colIndex] }}
+                onClick={() => handleClick(rowIndex, colIndex)}
+              >
+                {rowIndex * 3 + colIndex + 1}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div>
+      <button className='button' onClick={handleRefresh}>Refresh</button>
+      </div>
+      
     </div>
   );
 }
